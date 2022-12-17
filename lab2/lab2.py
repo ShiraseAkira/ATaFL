@@ -53,6 +53,30 @@ def get_equivalent_classes(classes, states, transitions):
 
     return new_classes.values()
 
+def get_zero_equivalent_classes(signals, states):
+    classes = {}
+    for i in range(len(signals)):
+        if signals[i] in classes:
+            classes[signals[i]].append(states[i])
+        else:
+            classes[signals[i]] = [states[i]]
+
+    return classes
+
+def get_states_and_renames(equivalent_classes, states):
+    unique_states = []
+    new_states_replacement_dict = {}
+    for i, equvalent_class in enumerate(equivalent_classes):
+        unique_states.append(equvalent_class[0])
+        for state in equvalent_class:
+            new_states_replacement_dict[state] = STATE_NAME_PREFIX + str(i)
+
+    is_state_kept = np.full(states.shape, False)
+    for state in unique_states:
+        is_state_kept[np.where(states == state)] = True
+
+    return is_state_kept, new_states_replacement_dict
+
 
 def mealy_minimize(mealy):
     original_states = mealy[0, 1:]
@@ -75,43 +99,27 @@ def mealy_minimize(mealy):
     transitions = transitions[is_state_reachable].T
     s = signals.T
     signals = s[is_state_reachable].T
-
-    # Начальное разбиение на классы эквивалентности
     signals_str = list(map(lambda x: "".join(x), signals.T))
-    classes = {}
-    for i in range(len(signals_str)):
-        if signals_str[i] in classes:
-            classes[signals_str[i]].append(states[i])
-        else:
-            classes[signals_str[i]] = [states[i]]
 
-    equivalent_classes = get_equivalent_classes(classes, states, transitions)
+    # разбиение на классы эквивалентности
+    zero_equivalent_classes = get_zero_equivalent_classes(signals_str, states)
+    equivalent_classes = get_equivalent_classes(zero_equivalent_classes, states, transitions)
 
-    unique_states = []
-    new_states_replacement_dict = {}
-    for i, equvalent_class in enumerate(equivalent_classes):
-        unique_states.append(equvalent_class[0])
-        for state in equvalent_class:
-            new_states_replacement_dict[state] = STATE_NAME_PREFIX + str(i)
-
-    is_state_left = np.full(states.shape, False)
-    for state in unique_states:
-        is_state_left[np.where(states == state)] = True
-
-    # выкидываем упраздненные состояния
-    states = states[is_state_left]
+     # выкидываем упраздненные состояния
+    states_to_keep_list, states_rename_dict = get_states_and_renames(equivalent_classes, states)
+    states = states[states_to_keep_list]
     transitions = transitions.T
-    transitions = transitions[is_state_left].T
+    transitions = transitions[states_to_keep_list].T
     s = signals.T
-    signals = s[is_state_left].T
+    signals = s[states_to_keep_list].T
 
     # заменяем переходы в таблице на эквивалентные и добавляем обратно сигналы
     for i in range(len(transitions)):
         for j in range(len(states)):
-            transitions[i][j] = new_states_replacement_dict[transitions[i][j]] + STATE_SIGNAL_DELIMETER + signals[i][j]
+            transitions[i][j] = states_rename_dict[transitions[i][j]] + STATE_SIGNAL_DELIMETER + signals[i][j]
     # переименовываем состояния
     for i in range(len(states)):
-        states[i] = new_states_replacement_dict[states[i]]
+        states[i] = states_rename_dict[states[i]]
 
     # Соединяем состояния (строка индексов) с переходами/сигналами
     states_transitions = np.vstack((states,transitions))
@@ -134,40 +142,24 @@ def moore_minimize(moore):
     transitions = transitions[is_state_reachable].T
     signals = signals[is_state_reachable]
 
-    # Начальное разбиение на классы эквивалентности
-    classes = {}
-    for i in range(len(signals)):
-        if signals[i] in classes:
-            classes[signals[i]].append(states[i])
-        else:
-            classes[signals[i]] = [states[i]]
-
-    equivalent_classes = get_equivalent_classes(classes, states, transitions)
-
-    unique_states = []
-    new_states_replacement_dict = {}
-    for i, equvalent_class in enumerate(equivalent_classes):
-        unique_states.append(equvalent_class[0])
-        for state in equvalent_class:
-            new_states_replacement_dict[state] = STATE_NAME_PREFIX + str(i)
-
-    is_state_left = np.full(states.shape, False)
-    for state in unique_states:
-        is_state_left[np.where(states == state)] = True
+    # Разбиение на классы эквивалентности
+    zero_equivalent_classes = get_zero_equivalent_classes(signals, states)
+    equivalent_classes = get_equivalent_classes(zero_equivalent_classes, states, transitions)
 
     # выкидываем упраздненные состояния
-    states = states[is_state_left]
+    states_to_keep_list, states_rename_dict = get_states_and_renames(equivalent_classes, states)
+    states = states[states_to_keep_list]
     transitions = transitions.T
-    transitions = transitions[is_state_left].T
-    signals = signals[is_state_left]
+    transitions = transitions[states_to_keep_list].T
+    signals = signals[states_to_keep_list]
 
     # заменяем переходы в таблице на эквивалентные
     for i in range(len(transitions)):
         for j in range(len(states)):
-            transitions[i][j] = new_states_replacement_dict[transitions[i][j]]
+            transitions[i][j] = states_rename_dict[transitions[i][j]]
     # переименовываем состояния
     for i in range(len(states)):
-        states[i] = new_states_replacement_dict[states[i]]
+        states[i] = states_rename_dict[states[i]]
 
     # Соединяем сигналы, состояния и переходы
     states_transitions = np.vstack((signals,states,transitions))
