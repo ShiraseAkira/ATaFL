@@ -1,6 +1,9 @@
 import sys
 import numpy as np
 
+STATE_SIGNAL_DELIMETER = '/'
+STATE_NAME_PREFIX = 's'
+
 def get_reachability_list(transitions, states):
     states_size = states.shape[0]
     state_is_reachable = np.full((states_size,), False) # Тут будем отслеживать, достижимо ли состояние
@@ -60,7 +63,7 @@ def mealy_minimize(mealy):
     signals = np.empty(transitions_with_outputs.shape, dtype='<U25')
     for i in range(0, len(transitions_with_outputs)):
         for j in range(0, len(transitions_with_outputs[0])):
-            cell_content = transitions_with_outputs[i][j].split('/')
+            cell_content = transitions_with_outputs[i][j].split(STATE_SIGNAL_DELIMETER)
             transitions[i][j] = cell_content[0]
             signals[i][j] = cell_content[1]
 
@@ -89,7 +92,7 @@ def mealy_minimize(mealy):
     for i, equvalent_class in enumerate(equivalent_classes):
         unique_states.append(equvalent_class[0])
         for state in equvalent_class:
-            new_states_replacement_dict[state] = 's' + str(i)
+            new_states_replacement_dict[state] = STATE_NAME_PREFIX + str(i)
 
     is_state_left = np.full(states.shape, False)
     for state in unique_states:
@@ -105,7 +108,7 @@ def mealy_minimize(mealy):
     # заменяем переходы в таблице на эквивалентные и добавляем обратно сигналы
     for i in range(len(transitions)):
         for j in range(len(states)):
-            transitions[i][j] = new_states_replacement_dict[transitions[i][j]] + '/' + signals[i][j]
+            transitions[i][j] = new_states_replacement_dict[transitions[i][j]] + STATE_SIGNAL_DELIMETER + signals[i][j]
     # переименовываем состояния
     for i in range(len(states)):
         states[i] = new_states_replacement_dict[states[i]]
@@ -132,7 +135,6 @@ def moore_minimize(moore):
     signals = signals[is_state_reachable]
 
     # Начальное разбиение на классы эквивалентности
-    # signals_str = list(map(lambda x: "".join(x), signals.T))
     classes = {}
     for i in range(len(signals)):
         if signals[i] in classes:
@@ -147,7 +149,7 @@ def moore_minimize(moore):
     for i, equvalent_class in enumerate(equivalent_classes):
         unique_states.append(equvalent_class[0])
         for state in equvalent_class:
-            new_states_replacement_dict[state] = 's' + str(i)
+            new_states_replacement_dict[state] = STATE_NAME_PREFIX + str(i)
 
     is_state_left = np.full(states.shape, False)
     for state in unique_states:
