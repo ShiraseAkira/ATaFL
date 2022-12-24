@@ -32,15 +32,12 @@ def build_rule_array(atomic_rules, is_left_grammar):
 
     return rules
 
-def get_signals(NDFA, is_left_grammar):
+def get_signals(NDFA, final_state):
     signals = np.zeros((1, NDFA.shape[1]), dtype=NDFA.dtype)
 
-    if is_left_grammar:
-        signals[0][-1] = 'F'
-    else:
-        for j in range(1, len(NDFA[0])):
-            if RIGHT_FINAL_STATE in NDFA[0][j]:
-                signals[0,j] = 'F'
+    for j in range(1, len(NDFA[0])):
+        if final_state == NDFA[0][j]:
+            signals[0,j] = 'F'
 
     return signals
 
@@ -77,7 +74,12 @@ def build_NDFA(rules, is_left_grammar):
                     if (rule[2] not in states_queue) and (rule[2] not in processed_states):
                         states_queue.append(rule[2])
 
-    signals = get_signals(NDFA, is_left_grammar)
+    if is_left_grammar:
+        final_state = rules[0][0]
+    else:
+        final_state = RIGHT_FINAL_STATE
+
+    signals = get_signals(NDFA, final_state)
     NDFA = np.vstack((signals, NDFA))
 
     return NDFA
