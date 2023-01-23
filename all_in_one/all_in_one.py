@@ -1,8 +1,8 @@
 import sys
 import numpy as np
-from .lab2 import *
-from .lab3_2 import *
-from .lab4 import *
+from lab2 import *
+from lab3_2 import *
+from lab4 import *
 
 if __name__ == "__main__":
     expected_arg_count = 3
