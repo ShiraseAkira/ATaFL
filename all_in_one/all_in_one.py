@@ -7,8 +7,8 @@ from .lab4 import *
 if __name__ == "__main__":
     expected_arg_count = 3
     if len(sys.argv) != expected_arg_count:
-        print('usage: python lab4.py "input_file" "output_file"')
-        print("example: python lab3_2.py regex.txt output.csv")
+        print('usage: python all_in_one.py "input_file" "output_file"')
+        print("example: python all_in_one.py regex.txt output.csv")
         sys.exit()
 
     with open(sys.argv[1], 'r') as file:
