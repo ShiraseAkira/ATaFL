@@ -14,7 +14,7 @@ if __name__ == "__main__":
     with open(sys.argv[1], 'r') as file:
         regex = file.read()
 
-    automata = regex_to_NDFA(self.lexemes[i]['regex'])
+    automata = regex_to_NDFA(regex)
     automata = NDFA_to_DFA(automata, print_state_labels=False)
     automata = moore_minimize(automata)
 
