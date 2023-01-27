@@ -30,6 +30,7 @@ def get_equivalent_classes(classes, states, transitions):
     repeat = True
     while repeat:
         repeat = False
+
         state_transitions_in_equivalents = {}
         for state, state_transitions in state_transitions_dict.items():
             state_transition_in_equivalents = []
@@ -56,7 +57,7 @@ def get_equivalent_classes(classes, states, transitions):
 
     return new_classes.values()
 
-def get_initial_equivalent_classes(signals, states):
+def get_zero_equivalent_classes(signals, states):
     classes = {}
     for i in range(len(signals)):
         if signals[i] in classes:
@@ -108,11 +109,10 @@ def mealy_minimize(mealy):
     s = signals.T
     signals = s[is_state_reachable].T
     signals_str = list(map(lambda x: "".join(x), signals.T))
-    # Разбиение на классы эквивалентности
-    # Первоначальное: нуль- (для Мура), один-(для Мили)
-    initial_equivalent_classes = get_initial_equivalent_classes(signals_str, states)
-    # Конечное
-    equivalent_classes = get_equivalent_classes(initial_equivalent_classes, states, transitions)
+
+    # разбиение на классы эквивалентности
+    zero_equivalent_classes = get_zero_equivalent_classes(signals_str, states)
+    equivalent_classes = get_equivalent_classes(zero_equivalent_classes, states, transitions)
 
      # выкидываем упраздненные состояния
     states_to_keep_list, states_rename_dict = get_states_and_renames(equivalent_classes, states)
@@ -144,16 +144,16 @@ def moore_minimize(moore):
     signals = moore[0, 1:]
 
     is_state_reachable = get_reachability_list(transitions, original_states)
+
     # выкидываем недостижимые состояния
     states = original_states[is_state_reachable]
     transitions = transitions.T
     transitions = transitions[is_state_reachable].T
     signals = signals[is_state_reachable]
+
     # Разбиение на классы эквивалентности
-    # Первоначальное: нуль- (для Мура), один-(для Мили)
-    initial_equivalent_classes = get_initial_equivalent_classes(signals, states)
-    # Конечное
-    equivalent_classes = get_equivalent_classes(initial_equivalent_classes, states, transitions) 
+    zero_equivalent_classes = get_zero_equivalent_classes(signals, states)
+    equivalent_classes = get_equivalent_classes(zero_equivalent_classes, states, transitions)
 
     # выкидываем упраздненные состояния
     states_to_keep_list, states_rename_dict = get_states_and_renames(equivalent_classes, states)

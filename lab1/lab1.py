@@ -2,15 +2,12 @@ import sys
 import numpy as np
 
 def mealy_to_moore(mealy):
-    # print('original_states', mealy[0, 1:])
     original_states = mealy[0, 1:]
-    # print('signals', mealy[1:, 0])
     signals = mealy[1:, 0]
-    # print('transitions', mealy[1:, 1:])
     transitions = mealy[1:, 1:]
-    # print('uniques', np.unique(mealy[1:, 1:]))
 
-    states = {state: ("s"+str(i)+"/"+state).split('/')  for i, state in enumerate(np.unique(mealy[1:, 1:]))}
+    states = {state: ("s"+str(i)+"/"+state).split('/')  \
+        for i, state in enumerate(np.unique(mealy[1:, 1:]))}
     moore = np.empty([len(signals) + 2, len(states)+1], dtype='<U25')
     for i, v in enumerate(states.values()):
         moore[0][i+1] = v[2]
@@ -24,8 +21,6 @@ def mealy_to_moore(mealy):
     for i in range(len(signals)):
         moore[2+i][0] = signals[i]
 
-    # print(states)
-    # print(moore)
     return moore
 
 def moore_to_mealy(moore):

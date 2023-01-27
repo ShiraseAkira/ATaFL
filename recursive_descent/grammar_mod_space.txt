@@ -1,0 +1,58 @@
+<PROG> -> PROG<SS>id<SS><VAR><SS>begin<SS><LISTST><SS>end
+
+<SS> -> ' '<NRSS> | '\n'<NRSS>
+<NRSS> -> ' '<NRSS> | '\n'<NRSS> | ε
+
+<VAR> -> VAR<SS><IDLIST><SS>:<SS><TYPE>;
+<IDLIST> -> id<NRSS><IDLIST+>
+<IDLIST+> -> ,<NRSS>id<NRSS><IDLIST+> | ε 
+<TYPE> -> int | float | bool | string
+<LISTST> -> <ST><NRSS><LISTST+>
+<LISTST+> -> <ST><NRSS><LISTST+> | ε 
+<ST> -> <READ>|<WRITE>|<ASSIGN>
+<READ> -> READ<NRSS>(<IDLIST>);
+<WRITE> -> WRITE<NRSS>(<IDLIST>);
+<ASSIGN> -> id<NRSS>:=<NRSS><EXP><NRSS>;
+<EXP> -> <T><NRSS><EXP+>
+<EXP+> -> +<NRSS><T><NRSS><EXP+> | ε 
+<T> -> <F><NRSS><T*>
+<T*> -> *<NRSS><F><NRSS><T*> | ε
+<F> -> -<NRSS><F> | (<NRSS><EXP><NRSS>) | id | num
+
+
+lexemmes:
+prog :prog +
+id :id *
+begin :begin +
+end :end
+
+(' '|'\n')+ : +
+(' '|'\n')* : *
+
+var :var +
+: :: *
+; :; *
+
+, :, *
+
+int :int *
+float :float *
+bool :bool *
+string :string *
+
+read :read *
+write :write *
+:= ::= *
++ :\+ *
+* :\* *
+- :- *
+( :\( *
+) :\) *
+num :num *
+
+
+keyword:(prog +)|(id *)|(begin +)|(end)|(var +)|(int *)|(float *)|(bool *)|(string *)|(read *)|(write *)|(num *)
+two_char_separator::= *
+separator:(: *)|(; *)|(, *)|(\( *)|(\) *)
+space_separator: +
+operators:(\+ *)|(\* *)|(- *)

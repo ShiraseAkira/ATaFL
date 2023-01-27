@@ -1,0 +1,26 @@
+<PROG> -> PROG id <VAR> begin <LISTST> end
+<VAR> -> VAR <IDLIST> : <TYPE>;
+<IDLIST> -> id <IDLIST+>
+<IDLIST+> -> , id <IDLIST+> | ε 
+<TYPE> -> int | float | bool | string
+<LISTST> -> <ST> <LISTST+>
+<LISTST+> -> <ST> <LISTST+> | ε 
+<ST> -> <READ>|<WRITE>| <ASSIGN>
+<READ> -> READ (<IDLIST>);
+<WRITE> -> WRITE (<IDLIST>);
+
+<ASSIGN> -> id := <EXP> ;
+<EXP> -> <T> <EXP+>
+<EXP+> -> + <T> <EXP+> | ε 
+<T> -> <F><T*>
+<T*> -> *<F><T*> | ε
+<F> -> -<F> | (<EXP>) | id | num
+
+
+PROG id 
+VAR id, id, id : int;
+BEGIN
+READ(id,id);
+Id:= id+num*-(-num+id*id*-num*( id+-num));
+WRITE(id,id,id);
+END

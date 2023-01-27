@@ -86,7 +86,6 @@ def build_NDFA(rules, is_left_grammar):
 
 
 def left_grammar_to_DFA(input):
-    INITITAL_STATE = '_'
     atomic_rules = get_atomic_rules(input)
     rules = build_rule_array(atomic_rules, True)
     NDFA = build_NDFA(rules, True)
@@ -95,7 +94,6 @@ def left_grammar_to_DFA(input):
    
 
 def right_grammar_to_DFA(input):
-    FINAL_STATE = '_'
     atomic_rules = get_atomic_rules(input)
     rules = build_rule_array(atomic_rules, False)
     NDFA = build_NDFA(rules, False)

@@ -42,10 +42,6 @@ def add_final_state(automata):
     return np.vstack((signals, automata))
 
 def join_partial_automatas(partial_automatas):
-    if len(partial_automatas) == 0:
-        empty = np.zeros((2,2), dtype='<U1024')
-        empty[-1][-1] = 's0'
-        return empty
     if len(partial_automatas) == 1:
         return add_final_state(partial_automatas[0])
     automata = partial_automatas[0]
@@ -175,6 +171,9 @@ def regex_to_NDFA(reg, input_chars = []):
 
             automata = regex_to_NDFA(reg[regex_position + 1:position - 1], input_chars)[1:]
             if parallel_next:
+                # automata1 = partial_automatas.pop()
+                # automata = make_parallel_automatas(automata1, automata)
+                # parallel_next = False
                 got_second_to_parallel = True
             partial_automatas.append(automata)
             regex_position = position
@@ -193,6 +192,9 @@ def regex_to_NDFA(reg, input_chars = []):
         else:
             automata = get_trivial_automata(reg[regex_position], input_chars)
         if parallel_next:
+            # automata1 = partial_automatas.pop()
+            # automata = make_parallel_automatas(automata1, automata)
+            # parallel_next = False
             got_second_to_parallel = True
         partial_automatas.append(automata)
         regex_position += 1
@@ -222,8 +224,6 @@ if __name__ == "__main__":
 
     with open(sys.argv[1], 'r') as file:
         regex = file.read()
-
     output = regex_to_NDFA(regex)
-
 
     np.savetxt(sys.argv[2], output, delimiter=';', fmt='%s')
