@@ -1,0 +1,13 @@
+digraph "NFAm Visualization" {
+	graph [rankdir=LR]
+	"" [label="" shape=plaintext]
+	s2 [label=s2 shape=doublecircle]
+	s1 [label=s1 shape=circle]
+	s0 [label=s0 shape=circle]
+	"" -> s0 [label=""]
+	s0 -> s0 [label=a]
+	s0 -> s1 [label=b]
+	s1 -> s0 [label=a]
+	s1 -> s1 [label=b]
+	s1 -> s2 [label=c]
+}
